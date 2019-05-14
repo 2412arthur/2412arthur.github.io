@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang='fr'>
+
+  <head>
+    <meta charset="utf-8">
+    <link href="styles/style.css" rel="stylesheet"² type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Rajdhani" rel="stylesheet">
+    <title>Le code - I.S.N.</title>
+  </head>
+
+  <body>
+    <h1>Le code</h1>
+    <div style="text-align:right">
+      <a href="index3.html" title="Le projet"><img src="images/pied_de_page/back.png" style="border-color:#000000;" border="1" width=30></a>
+      <a href="index5.html" title="Les zooms"><img src="images/pied_de_page/next.png" style="border-color:#000000;" border="1" width=30></a>
+    </div>
+
+    <pre><code class="py">
+  # -*- coding: utf-8 -*-
+
+  from PIL import Image
+
+
+
+
+
+
+  def encode(image_a_traiter, nom_modifie, message) :
+
+      """ Fonction qui prend en paramètre le nom de l'image dans laquelle on veut
+      cacher un message, le nom de l'image dans laquelle va être encodé le message,
+      et le message lui-même.
+      Créé ainsi une nouvelle image dans le dossier parent sous le nom voulu par
+      l'utilisateur dans laquelle est caché le message. """
+
+
+
+  # =============================================================================
+  # Transformation pure et simple du message de chaine de caractères à liste
+  #   #1# Liste qui stocke les caractères du message à encoder
+  # =============================================================================
+
+      LISTE_message = [] #1#
+
+      for elements in message :
+          LISTE_message.append(elements)
+
+
+
+  # =============================================================================
+  # Récupération du code ASCII des caractères
+  #   #1# Liste qui stocke les codes ASCII obtenue à partir des éléments la liste
+  #       des caractères du message convertis grâce à la méthode ord()
+  # =============================================================================
+
+      LISTE_code_Ascii_dec = [] #1#
+      nombre_caracteres = len(LISTE_message)
+
+      for loop in range(nombre_caracteres) :
+         code_Ascii = ord(LISTE_message[loop])
+         LISTE_code_Ascii_dec.append(code_Ascii)
+
+
+
+  # =============================================================================
+  # Convertion de code ASCII des caractères en binaire
+  #   #1# Liste qui stocke les codes ASCII binaire, chacun dans une liste, des
+  #       caractères du message
+  #    #2# On convertit cette valeur décimale en binaire grâce à une autre fonction
+  # =============================================================================
+
+      LISTE_de_listes_codes_Ascii_bin = [] #1#
+      Ascii_dec = 0
+
+      for elements in LISTE_code_Ascii_dec :
+          Ascii_dec = conversion_b10_b2(elements) #2#
+          LISTE_de_listes_codes_Ascii_bin.append(Ascii_dec)
+
+
+
+  # =============================================================================
+  # Récupération des bits de poids faible des codes binaires des caractères
+  #   #1# Liste qui stocke les bits de poids faible des octets de rouge en binaire
+  # =============================================================================
+
+      LISTE_bits_poids_faible = [] #1#
+
+      for elements_1 in LISTE_de_listes_codes_Ascii_bin :
+          for elements_2 in elements_1 :
+              LISTE_bits_poids_faible.append(elements_2)
+
+
+
+  # =============================================================================
+  # Pour récupérér les octets de rouge de l'image
+  #   #1# Liste qui stocke les octets de rouge en hexadécimal
+  #   #2# Lecture du premier octet de rouge
+  #   #3# On lit deux octets d'un coup qui ne servent à rien
+  #   #4# On lit l'octet de rouge suivant
+  # =============================================================================
+
+      with open(image_a_traiter, mode='rb') as lecture_image :
+
+          entete = lecture_image.read(204)
+          securite_decodage = lecture_image.read(204)
+
+          LISTE_octets_rouges_hex = [] #1#
+          octets_lu = lecture_image.read(1) #2#
+          vert_et_bleu = 0
+
+          while len(octets_lu) > 0 :
+              LISTE_octets_rouges_hex.append(octets_lu)
+              vert_et_bleu = lecture_image.read(2) #3#
+              octets_lu = lecture_image.read(1) #4#
+
+      lecture_image.close()
+
+
+
+  # =============================================================================
+  # Pour récupérer les octets de rouge de l'image
+  #   #1# Liste qui stocke les octets de rouge en binaire
+  #   #2# Il s'agit ici de récupérer la valeur décimale du code hexadécimal des
+  #       octets de rouge de l'image
+  #   #3# On convertit cette valeur décimale en binaire grâce à une autre fonction
+  # =============================================================================
+
+      LISTE_octets_rouges_bin = [] #1#
+      nombre_octets_rouge = len(LISTE_octets_rouges_hex)
+      octet_rouge_dec = 0
+      octet_rouge_bin = 0
+
+      for loop in range(nombre_octets_rouge) :
+          octet_rouge_dec = int.from_bytes(LISTE_octets_rouges_hex[loop], byteorder='big') #2#
+          octet_rouge_bin = conversion_b10_b2(octet_rouge_dec) #3#
+          LISTE_octets_rouges_bin.append(octet_rouge_bin)
+
+
+
+  # =============================================================================
+  # L'objectif de ce bout de code est d'avoir autant de sous-listes d'octets de
+  # rouge binaire que l'on a de bits de poids faible pour remplacer le bit de
+  # poids faible original par celui de notre message
+  #   #1# On enlève d'un coup tout ce qui dépasse
+  #   #2# Pour faire joli !
+  #   #3# On supprime le bit original ...
+  #   #4# ... et on complète
+  # =============================================================================
+
+      nombre_octets_rouge_bin = len(LISTE_octets_rouges_bin)
+      nombre_bits_poids_faible = len(LISTE_bits_poids_faible)
+      loop=0
+
+      if nombre_octets_rouge_bin != nombre_bits_poids_faible :
+          del LISTE_octets_rouges_bin[nombre_bits_poids_faible:] #1#
+      else :
+          pass #2#
+
+      for elements in LISTE_octets_rouges_bin :
+          del elements[7] #3#
+          elements.append(LISTE_bits_poids_faible[loop]) #4#
+          loop+=1
+
+
+
+  # =============================================================================
+  # #1# Liste qui stocke les codes ASCII décimal des listes de bits de poids faible
+  # =============================================================================
+
+      LISTE_octets_rouge_dec = [] #1#
+      octet_rouge_dec = 0
+
+      for elements in LISTE_octets_rouges_bin :
+          octet_rouge_dec = conversion_b2_b10(elements)
+          LISTE_octets_rouge_dec.append(octet_rouge_dec)
+
+
+
+  # =============================================================================
+  # Notre objectif ici est de se ramener à un code codable dans l'image
+  #   #1# Il s'agit ici de récupérer la valeur décimale du code hexadécimal des
+  #       octets de rouge de l'image
+  # =============================================================================
+
+      LISTE_octets_rouge_hex = []
+      nombre_octets_rouge = len(LISTE_octets_rouge_dec)
+
+      for loop in range(nombre_octets_rouge) :
+          octet_rouge_hex = (LISTE_octets_rouge_dec[loop]).to_bytes(1, byteorder='big') #1#
+          LISTE_octets_rouge_hex.append(octet_rouge_hex)
+
+
+
+  # =============================================================================
+  # On créé facilement un double de l'image originale pour travailler dessus
+  # grâce au module Image de la bibliothèque PIL
+  # =============================================================================
+
+      with Image.open(image_a_traiter) as lecture_image :
+          largeur, hauteur = lecture_image.size
+          image_a_encoder = Image.new("RGB",(largeur,hauteur))
+          image_a_encoder.save(nom_modifie)
+      lecture_image.close()
+
+
+
+  # =============================================================================
+  # La partie crutiale de la fonction : l'encodage du message dans l'image
+  # #1# On lit et on recopie l'entête de l'image
+  # #2# On lit et on recopie la sécurité de décodage générée par la fonction decode()
+  #     C'est ici que l'on peut compliquer la vie au décodage : il faut regarder
+  #     le reste de la division par 8 du nombre d'octets de sécurité que l'on
+  #     lit : le chiffre obtenu est le fameux décalage de decode()
+  # =============================================================================
+
+      with open(image_a_traiter, mode='rb') as lecture_image :
+
+          with open(nom_modifie, mode='wb') as image_a_encoder :
+
+              entete = lecture_image.read(204) #1#
+              securite_decodage = lecture_image.read(2040) #2#
+
+              image_a_encoder.write(entete) #1#
+              image_a_encoder.write(securite_decodage) #2#
+
+              for octets_rouge in LISTE_octets_rouge_hex :
+
+                  R = lecture_image.read(1)
+                  V_B = lecture_image.read(2)
+
+                  R = octets_rouge
+                  image_a_encoder.write(R)
+                  image_a_encoder.write(V_B)
+
+              reste_de_l_image = lecture_image.read()
+              image_a_encoder.write(reste_de_l_image)
+
+
+          image_a_encoder.close()
+
+      lecture_image.close()
+
+
+
+
+
+
+  def decode(image_a_traiter) :
+
+      """ Fonction qui prend en paramètre le nom de l'image à partir de laquelle
+      on veut décoder le message et décode le message caché dans les bits de poids
+      faible des octets de rouge.
+      Renvoie au programme principal ce message. """
+
+
+
+  # =============================================================================
+  # Pour récupérér les octets de rouge de l'image
+  #   #1# Lecture de l'entête inutile
+  #   #2# Boucle qui permet de constituer LISTE_octets_rouges_hex
+  #   #3# Liste qui stocke les octets de rouge en hexadécimal
+  #   #4# Lecture du premier octet de rouge
+  #   #5# On lit deux octets d'un coup qui ne servent à rien
+  #   #6# On lit l'octet de rouge suivant
+  # =============================================================================
+
+      with open(image_a_traiter, mode='rb') as image_a_decoder :
+
+          entete = image_a_decoder.read(204) #1#
+
+          #2#
+
+          LISTE_octets_rouges_hex = [] #3#
+          octets_lu = image_a_decoder.read(1) #4#
+          vert_et_bleu = 0
+
+          while len(octets_lu) > 0 :
+              LISTE_octets_rouges_hex.append(octets_lu)
+              vert_et_bleu = image_a_decoder.read(2) #5#
+              octets_lu = image_a_decoder.read(1) #6#
+
+      image_a_decoder.close()
+
+
+  # =============================================================================
+  #   #1# Liste qui stocke les octets de rouge en binaire
+  #   #2# Liste qui stocke les bits de poids faible des octets de rouge en binaire
+  #   #3# On prend en compte le décalage à partir duquel commence le message de
+  #       l'image originale ;
+  #       Pour décoder botte_de_foin_message_1, on a du décaller de 4 rangs ;
+  #       Dans notre cas, pas besoin de décallage
+  #   #4# Il s'agit ici de récupérer la valeur décimale du code hexadécimal des
+  #       octets de rouge de l'image
+  #   #5# On convertit cette valeur décimale en binaire grâce à une autre fonction
+  # =============================================================================
+
+      LISTE_octets_rouges_bin = [] #1#
+      LISTE_bits_poids_faible = [] #2#
+      nombre_octets_rouge = len(LISTE_octets_rouges_hex[:]) #3#
+      octet_rouge_dec = 0
+      octet_rouge_bin = 0
+
+      for loop in range(nombre_octets_rouge) :
+          octet_rouge_dec = int.from_bytes(LISTE_octets_rouges_hex[loop], byteorder='big') #4#
+          octet_rouge_bin = conversion_b10_b2(octet_rouge_dec) #5#
+          LISTE_octets_rouges_bin.append(octet_rouge_bin)
+          LISTE_bits_poids_faible.append(octet_rouge_bin[-1])
+
+
+
+  # =============================================================================
+  # Cette boucle impliquera cette 'securite_decodage' dans encode() :
+  # elle est essentielle pour se ramener à un multiple de 8 afin de réaliser
+  # l'étape suivante
+  #   #1# On concatène la liste sans son premier terme
+  # =============================================================================
+
+      loop=0
+      while ((len(LISTE_bits_poids_faible)) % 8) != 0 :
+          LISTE_bits_poids_faible = LISTE_bits_poids_faible[loop:len(LISTE_bits_poids_faible)] #1#
+          loop += 1
+
+
+
+  # =============================================================================
+  # Boucle qui permet de créer une liste de listes de 8 éléments de bits de poids
+  # faible
+  #   #1# Liste qui stocke des listes de bits de poids faible des octets de rouge
+  #   #2# Et c'est là que la boucle précédente révèle son intérêt
+  # =============================================================================
+
+      LISTE_de_listes_bits_poids_faible = [] #1#
+      nombre_bits_poids_faible = len(LISTE_bits_poids_faible)//8 #2#
+
+      for loop in range(nombre_bits_poids_faible-1) :
+          LISTE_de_listes_bits_poids_faible.append(LISTE_bits_poids_faible[8*loop:8*loop+8])
+
+
+
+  # =============================================================================
+  #   #1# Liste qui stocke les codes ASCII décimal des listes de bits de poids
+  #       faible
+  # =============================================================================
+
+      LISTE_Ascii_dec = [] #1#
+      Ascii_dec = 0
+
+      for elements in LISTE_de_listes_bits_poids_faible :
+          Ascii_dec = conversion_b2_b10(elements)
+          LISTE_Ascii_dec.append(Ascii_dec)
+
+
+
+  # =============================================================================
+  #   #1# Liste qui stocke les caractères obtenues à partir des éléments de la
+  #       liste des codes ASCII décimal convertis grâce à la méthode chr()
+  # =============================================================================
+
+      LISTE_caracteres = [] #1#
+      nombre_codes_ascii = len(LISTE_Ascii_dec)
+      caractere = ''
+
+      for loop in range(nombre_codes_ascii) :
+         caractere = chr(LISTE_Ascii_dec[loop])
+         LISTE_caracteres.append(caractere)
+
+
+
+      message_decode = ""
+
+      for elements in LISTE_caracteres :
+          message_decode = message_decode + elements
+
+
+
+      return message_decode[:]
+
+
+
+
+
+
+  def conversion_b2_b10(LISTE_nombre_b2) :
+
+      """ Prend en paramètre une liste de 0 et de 1 de longueur 8 bits soit 1 octet ;
+      Convertit ce nombre en base 10 ;
+      Renvoie enfin un nombre décimal. """
+
+      resultat_b10 = 0
+      nombre_bits = len(LISTE_nombre_b2)
+
+      for loop in range(nombre_bits) :
+
+          if LISTE_nombre_b2[loop] == 1 :
+              exposant = 7 - loop
+              resultat_b10 = resultat_b10 + (2**exposant)
+
+      return resultat_b10
+
+
+
+
+
+
+  def conversion_b10_b2(nombre_b10) :
+
+      """ Prend en paramètre un nombre en base 10 (en décimal) ;
+      Convertit ce nombre en binaire ;
+      Renvoie enfin une liste de 0 et de 1 de la longueur d'un octet, soit 8 bits. """
+
+  # =============================================================================
+  #   #1# Liste qui stocke les 8 bits de l'octet ainsi convertit
+  #   #2# On ajoute autant de 0 qu’il en manque pour avoir une liste de longueur 8
+  # =============================================================================
+
+      LISTE_ascii_binaire = [] #1#
+
+      while nombre_b10 != 0 :
+          X = nombre_b10 % 2
+          LISTE_ascii_binaire = [X] + LISTE_ascii_binaire
+          nombre_b10 = nombre_b10 // 2
+
+      nombre_bits = len(LISTE_ascii_binaire)
+      zeros_a_ajouter = 8 - nombre_bits
+
+      for loop in range(zeros_a_ajouter) :
+          LISTE_ascii_binaire = [0] + LISTE_ascii_binaire #2#
+
+      return LISTE_ascii_binaire
+
+
+
+
+
+
+  #------------------------------------------------------------------------------
+  #                                   MAIN
+  #------------------------------------------------------------------------------
+
+
+
+
+
+
+  choix  = input("Voulez-vous encoder(1) ou décoder(2) un message : ")
+
+
+  if choix == '1' :
+
+      image = input("Nom de image : ")
+      image2 = input("Nom de l'image contenant le message : ")
+      texte = input("Message à encoder : ")
+      encode(image, image2, texte)
+      print("Le message a été encodé avec succès !")
+
+  else :
+      image = input("Nom de image : ")
+      i=1
+      for loop in range(8):
+
+          message = decode(image, i)
+          print("")
+          print("Vous pouvez chercher votre message là dedans =) :")
+          print("")
+          print(message[0:300]) # Le message se trouvera au milieu d'un gros charabia
+          i += 1
+      </code></pre>
+
+
+    <div style="text-align:right">
+      <a href="index3.html" title="Le projet"><img src="images/pied_de_page/back.png" style="border-color:#000000;" border="1" width=30></a>
+      <a href="index5.html" title="Les zooms"><img src="images/pied_de_page/next.png" style="border-color:#000000;" border="1" width=30></a>
+    </div>
+  </body>

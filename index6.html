@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang='fr'>
+
+  <head>
+    <meta charset="utf-8">
+    <link href="styles/style.css" rel="stylesheet"² type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Rajdhani" rel="stylesheet">
+    <title>L'interface - I.S.N.</title>
+  </head>
+
+  <body>
+    <h1>L'interface</h1>
+
+    <div style="text-align:right">
+      <a href="index5.html" title="Les zooms"><img src="images/pied_de_page/back.png" style="border-color:#000000;" border="1" width=30></a>
+      <a href="index7.html" title="Conclusion"><img src="images/pied_de_page/next.png" style="border-color:#000000;" border="1" width=30></a>
+    </div>
+
+    <div class="interface">
+      <h2>Le code</h2>
+      <pre><code class="py">
+
+# -*- coding: utf-8 -*-
+
+from tkinter import *
+from tkinter.filedialog import *
+from tkinter.messagebox import *
+from PIL import Image
+
+
+
+
+
+
+def fenetre_principale() :
+
+    fenetre_1 = Tk()
+    fenetre_1.title("Hidden Message")
+    fenetre_1['bg']='#55b8d1'
+
+    cadre_1 = Frame(fenetre_1, width=768, height=576,  borderwidth=2, relief=GROOVE)
+    cadre_1.pack(fill=BOTH, side=LEFT, padx=5, pady=5)
+    #cadre_1['bg']='#4a2c6e6'    bg = 'blue', fg = 'white',
+
+    cadre_3 = Frame(fenetre_1, width=768, height=576,  borderwidth=2, relief=GROOVE)
+    cadre_3.pack(fill=BOTH, side=TOP, padx=5, pady=5)
+
+    label_presentation = Label(cadre_1, text="""ICI PEUT ETRE INSCRIT UNE DESCRIPTION
+    Veuillez sélectionner l'une des deux propositions ci-contre  :""")
+    label_choix.pack(fill=X, side=TOP, padx=5, pady=5)
+
+    bouton_decoder = Button(cadre_3, text='Décoder un message', command=fenetre_decode)
+    bouton_decoder.pack(fill=X, side = TOP, padx=5, pady=5)
+
+    bouton_encoder = Button(cadre_3, text='Encoder un message', command=fenetre_encode)
+    bouton_encoder.pack(fill=X, side = BOTTOM, padx=5, pady=5)
+
+##    def verification() :
+##        showinfo("Attention", "Êtes-vous sûr(e) de vouloir quitter ?")
+##        fenetre_1.destroy()
+
+    bouton_quitter = Button(fenetre_1, text='QUITTER Hidden Message', command=fenetre_1.destroy)
+    bouton_quitter.pack(fill=X, side=BOTTOM, padx=5, pady=5)
+    #COMMENT RAMENER CE BOUTON A LA LIGNE???????
+
+    fenetre_1.mainloop()
+
+
+
+
+def fenetre_decode() :
+
+    fenetre_2 = Tk()
+    fenetre_2.title("Hidden Message - Décoder un message")
+    fenetre_2['bg'] = '#55b8d1'
+
+    cadre_2 = Frame(fenetre_2, width=768, height=576,  borderwidth=2, relief=GROOVE)
+    cadre_2.pack(fill=BOTH, side=TOP, padx=5, pady=5)
+
+    filepath = askopenfilename(title="Ouvrir une image",
+                                filetypes=[('png files','.png'),('all files','.*')])
+    photo = PhotoImage(master = cadre_2, file=filepath)
+    canvas = Canvas(cadre_2, width=photo.width(), height=photo.height(), bg="yellow")
+    canvas.create_image(0, 0, anchor=NW, image=photo)
+    canvas.pack()
+
+    bouton_retour_1 = Button(fenetre_2, text="Retour au menu", command=fenetre_2.destroy)
+    bouton_retour_1.pack(fill=X, side=BOTTOM, padx=5, pady=5)
+
+    fenetre_2.mainloop()
+
+    # Pour cette fonction :
+    # - importation d'une image
+    # - affichage de l'image
+    # - barre de progression et affichage de texte au cours de la progression
+    # affichage du texte décodé
+
+
+def recupere() :
+    global message_entre, barre_entree,sortie
+    message_a_encoder = message_entre.get()
+    sortie.configure(text = message_a_encoder)
+    print(message_a_encoder)
+    print("ou bien "+message_entre.get())
+    return message_a_encoder
+
+
+def fenetre_encode() : # N'ARRIVE PAS A RECUPERER LA VALEUR
+    global message_entre,barre_entree,sortie
+
+    fenetre_3 = Tk()
+    fenetre_3.title("Hidden Message - Encoder un message")
+    fenetre_3['bg'] = '#55b8d1'
+
+    cadre_3 = Frame(fenetre_3, width=768, height=576,  borderwidth=2, relief=GROOVE)
+    cadre_3.pack(fill=BOTH, side=TOP, padx=5, pady=5)
+
+    label_instructions = Label(cadre_3, text="Veuillez entrer le message que vous souhaitez encoder.")
+    label_instructions.pack(fill=X, side=TOP, padx=5, pady=5)
+
+     #def recupere() :
+     #   showinfo("Alerte", barre_entree.get())
+
+ message_entre = StringVar()
+
+    barre_entree = Entry(cadre_3, textvariable=message_entre,show='*', bg ='bisque', fg='maroon')
+    barre_entree.focus_set()
+    barre_entree.pack(fill=X, side=LEFT, padx=5, pady=5)
+    message_entre.set("message")
+    print("essai "+message_entre.get())
+    bouton_recupere = Button(cadre_3, text="Valider", command=recupere)
+    bouton_recupere.pack(fill=X, side=RIGHT, padx=5, pady=5)
+
+    sortie = Label(cadre_3, text = "C'est ici qu'on affichera le résultat du Champ", width=70)
+    sortie.pack()
+
+    bouton_retour_3 = Button(fenetre_3, text='Retour au menu', command=fenetre_3.destroy)
+    bouton_retour_3.pack(fill=X, side=BOTTOM, padx=5, pady=5)
+
+    fenetre_3.mainloop()
+
+
+
+    #return message_a_encoder
+        </code></pre>
+        <h2>Quelques captures</h2>
+        <ul>
+          <li><img src="images\interf1.PNG" style="border-color:#000000;" border="1" width=800></li>
+          <li><img src="images\interf2.PNG" style="border-color:#000000;" border="1" width=800></li>
+          <li><img src="images\interf3.PNG" style="border-color:#000000;" border="1" width=800></li>
+          <li><img src="images\interf4.PNG" style="border-color:#000000;" border="1" width=800></li>
+        </ul>
+    </div>
+
+    <div style="text-align:right">
+      <a href="index5.html" title="Les zooms"><img src="images/pied_de_page/back.png" style="border-color:#000000;" border="1" width=30></a>
+      <a href="index7.html" title="Conclusion"><img src="images/pied_de_page/next.png" style="border-color:#000000;" border="1" width=30></a>
+    </div>
+  </body>

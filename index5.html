@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang='fr'>
+
+  <head>
+    <meta charset="utf-8">
+    <link href="styles/style.css" rel="stylesheet"² type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Rajdhani" rel="stylesheet">
+    <title>Les zooms - I.S.N.</title>
+  </head>
+
+  <body>
+    <h1>Les zooms</h1>
+
+    <div style="text-align:right">
+      <a href="index4.html" title="Le code"><img src="images/pied_de_page/back.png" style="border-color:#000000;" border="1" width=30></a>
+      <a href="index6.html" title="L'interface"><img src="images/pied_de_page/next.png" style="border-color:#000000;" border="1" width=30></a>
+    </div>
+
+    <div class="zooms">
+      <h2>conversion_b10_b2</h2>
+      <pre><code class="py">
+        def conversion_b10_b2(nombre_b10) :
+
+            """ Prend en paramètre un nombre en base 10 (en décimal) ;
+            Convertit ce nombre en binaire ;
+            Renvoie enfin une liste de 0 et de 1 de la longueur d'un octet, soit 8 bits. """
+
+        # =============================================================================
+        #   #1# Liste qui stocke les 8 bits de l'octet ainsi convertit
+        #   #2# On ajoute autant de 0 qu’il en manque pour avoir une liste de longueur 8
+        # =============================================================================
+
+            LISTE_ascii_binaire = [] #1#
+
+            while nombre_b10 != 0 :
+                X = nombre_b10 % 2
+                LISTE_ascii_binaire = [X] + LISTE_ascii_binaire
+                nombre_b10 = nombre_b10 // 2
+
+            nombre_bits = len(LISTE_ascii_binaire)
+            zeros_a_ajouter = 8 - nombre_bits
+
+            for loop in range(zeros_a_ajouter) :
+                LISTE_ascii_binaire = [0] + LISTE_ascii_binaire #2#
+
+            return LISTE_ascii_binaire
+        </code></pre>
+        <h2>Le fameux décallage</h2>
+        <pre><code class="py">
+          # =============================================================================
+          # L'objectif de ce bout de code est d'avoir autant de sous-listes d'octets de
+          # rouge binaire que l'on a de bits de poids faible pour remplacer le bit de
+          # poids faible original par celui de notre message
+          #   #1# On enlève d'un coup tout ce qui dépasse
+          #   #2# Pour faire joli !
+          #   #3# On supprime le bit original ...
+          #   #4# ... et on complète
+          # =============================================================================
+
+              nombre_octets_rouge_bin = len(LISTE_octets_rouges_bin)
+              nombre_bits_poids_faible = len(LISTE_bits_poids_faible)
+              loop=0
+
+              if nombre_octets_rouge_bin != nombre_bits_poids_faible :
+                  del LISTE_octets_rouges_bin[nombre_bits_poids_faible:] #1#
+              else :
+                  pass #2#
+
+              for elements in LISTE_octets_rouges_bin :
+                  del elements[7] #3#
+                  elements.append(LISTE_bits_poids_faible[loop]) #4#
+                  loop+=1
+          </code></pre>
+    </div>
+
+    <div style="text-align:right">
+      <a href="index4.html" title="Le code"><img src="images/pied_de_page/back.png" style="border-color:#000000;" border="1" width=30></a>
+      <a href="index6.html" title="L'interface"><img src="images/pied_de_page/next.png" style="border-color:#000000;" border="1" width=30></a>
+    </div>
+  </body>
